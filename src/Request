@@ -1,0 +1,3 @@
+echo -en "GET / HTTP/1.1\r\nHost: ubuntu.ru\n\r\n" | nc ubuntu.ru 80
+echo -en "GET / HTTP/1.1\r\nHost: localhost\n\r\n" | nc localhost 1234
+
