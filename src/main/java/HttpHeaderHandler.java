@@ -6,6 +6,7 @@ import java.util.Map;
 /**
  * Created by mhty on 20.02.16.
  */
+@Deprecated
 public class HttpHeaderHandler {
     private String headerString;
     private boolean parsed;
