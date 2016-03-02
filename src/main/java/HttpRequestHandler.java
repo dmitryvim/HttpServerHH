@@ -1,4 +1,4 @@
-import sun.tools.jconsole.HTMLPane;
+
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -18,28 +18,27 @@ public class HttpRequestHandler {
     public HttpRequestHandler readHeader() {
         final int bufferSize = 200;
         int count;
-        String HttpRequest;
+        StringBuffer httpRequest = new StringBuffer();
         ByteBuffer byteBuffer = ByteBuffer.allocate(bufferSize);
 
-
         do {
-
             try {
                 count = socketChannel.read(byteBuffer);
             } catch (IOException e) {
                 throw new RuntimeException("ByteBuffer read error: " + e);
             }
+
             byteBuffer.rewind();
             StringBuffer stringBuffer = new StringBuffer(count);
             for (int i = 0; i < count; i++) {
                 stringBuffer.append((char)byteBuffer.get());
             }
-            HttpRequest = stringBuffer.toString();
+            httpRequest.append(stringBuffer.toString());
             byteBuffer.rewind();
         } while (count == bufferSize);
 
-        System.out.println("\n\n---\n" + HttpRequest + "\n---\n\n");
-        httpHeader = HttpHeaderClient.createHttpHeaderReader(HttpRequest);
+        System.out.println("\n\n---\n" + httpRequest + "\n---\n\n");
+        httpHeader = HttpHeaderClient.createHttpHeaderReader(httpRequest.toString());
         System.out.println(httpHeader.getHttpHeader());
         return this;
     }

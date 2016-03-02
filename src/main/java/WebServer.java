@@ -12,6 +12,7 @@ import java.util.*;
 /**
  * Created by mhty on 20.02.16.
  */
+@Deprecated
 public class WebServer{
     private ServerSocketChannel serverSocketChannel;
     SocketChannel socketChannel;

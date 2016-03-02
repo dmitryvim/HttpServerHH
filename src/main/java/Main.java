@@ -16,7 +16,8 @@ public class Main {
         HttpServer
                 .build()
                 .setInetPort(1234)
-                .setHomeDirectory("/Users/mhty/IdeaProjects/HttpServer/server-home")
+                .setHomeDirectory("/home/dmitry/IdeaProjects/HttpServerHH/server-home")
+                //.setHomeDirectory("/Users/mhty/IdeaProjects/HttpServer/server-home")
                 .start();
     }
 }
