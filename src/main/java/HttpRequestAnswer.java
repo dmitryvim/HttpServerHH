@@ -1,40 +1,31 @@
+import io.netty.handler.codec.http.HttpRequest;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.LinkedList;
 
-/**
- * Created by mhty on 26.02.16.
- */
 public class HttpRequestAnswer {
     private SocketChannel socketChannel;
     private String path;
     private HttpHeaderServer httpHeader;
+    private LinkedList<ByteBuffer> pageBuffers;
+    private int defaultBufferSize = 1024;
 
     private HttpRequestAnswer(SocketChannel socketChannel) {
         this.socketChannel = socketChannel;
         httpHeader = HttpHeaderServer.createHttpHeaderWriter(HttpHeader.HTTP_CODE_SUCCESS);
+        pageBuffers = new LinkedList<>();
     }
 
     public static HttpRequestAnswer createHttpRequestAnswer(SocketChannel socketChannel) {
         return new HttpRequestAnswer(socketChannel);
     }
 
-    public void setBadAnswer() {
-//        HTTP/1.1 400 Bad Request
-//        Server: nginx/1.6.2
-//        Date: Sat, 27 Feb 2016 14:14:16 GMT
-//        Content-Type: text/html; charset=utf-8
-//        Content-Length: 172
-//        Connection: close
-
-//        <html>
-//        <head><title>400 Bad Request</title></head>
-//        <body bgcolor="white">
-//        <center><h1>400 Bad Request</h1></center>
-//        <hr><center>nginx/1.6.2</center>
-//        </body>
-//        </html>
-
+    public HttpRequestAnswer setBadAnswer() {
         String html = "<html>\n" +
                 "<head><title>400 Bad Request</title></head>\n" +
                 "<body bgcolor=\"white\">\n" +
@@ -42,36 +33,68 @@ public class HttpRequestAnswer {
                 "<hr><center>mhServer</center>\n" +
                 "</body>\n" +
                 "</html>";
+        pageBuffers.clear();
+        pageBuffers.add(ByteBuffer.wrap(html.getBytes()));
 
-        httpHeader.setCode(httpHeader.HTTP_CODE_BAD_REQUEST);
+        httpHeader.setCode(HttpHeader.HTTP_CODE_BAD_REQUEST);
         httpHeader.setStatus("Bad Request");
         httpHeader.setContentLength(html.length());
         httpHeader.addParameter("Server", "mhServer 0.0.1");
         httpHeader.addParameter("Content-type:", "text/html; charset=utf-8");
         httpHeader.addParameter("Connection", "close");
 
+        return this;
+    }
+
+    public HttpRequestAnswer setPath(String path) {
+        httpHeader.setCode(HttpHeader.HTTP_CODE_BAD_REQUEST);
+        httpHeader.setStatus("Bad Request");
+        //httpHeader.setContentLength(html.length());
+        httpHeader.addParameter("Server", "mhServer 0.0.1");
+        httpHeader.addParameter("Content-type:", "text/html; charset=utf-8");
+        httpHeader.addParameter("Connection", "close");
+
+        this.path = path;
+        getBytePage();
+        return this;
+    }
+
+    private void getBytePage() {
+        int contentLength = 0;
+
+        try (SeekableByteChannel fileChannel = Files.newByteChannel(Paths.get(path))) {
+            int count;
+            do {
+                pageBuffers.add(ByteBuffer.allocate(defaultBufferSize));
+                count = fileChannel.read(pageBuffers.getLast());
+                pageBuffers.getLast().rewind();
+
+                contentLength += count;
+            } while (count == defaultBufferSize);
+
+        } catch ( IOException e ) {
+            throw new RuntimeException("File read exception " + path + "\n");
+        }
+
+        httpHeader.setContentLength(contentLength);
+    }
+
+
+    public void make() {
         try {
             socketChannel.write(ByteBuffer.wrap(httpHeader.getBytes()));
-            socketChannel.write(ByteBuffer.wrap(html.getBytes()));
+            for (ByteBuffer buffer:
+                    pageBuffers) {
+                buffer.rewind();
+                socketChannel.write(buffer);
+            }
             socketChannel.close();
         } catch (IOException e) {
             throw new RuntimeException("Socket channel write exception.\n");
         }
-
-
     }
 
-    public HttpRequestAnswer setPath(String path) {
-        this.path = path;
-        return this;
-    }
-
-    public void make() {
-        setContentType();
-        setConnectionAlive();
-    }
-
-    private void setContentType() {
+    private void setContentTypeTextHtml() {
         httpHeader.addParameter("Content-Type", "text/html");
     }
 

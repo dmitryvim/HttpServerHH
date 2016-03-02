@@ -1,12 +1,7 @@
-
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-/**
- * Created by mhty on 26.02.16.
- */
 public class HttpRequestHandler {
     private SocketChannel socketChannel;
     public HttpHeaderClient httpHeader;
@@ -18,7 +13,7 @@ public class HttpRequestHandler {
     public HttpRequestHandler readHeader() {
         final int bufferSize = 200;
         int count;
-        StringBuffer httpRequest = new StringBuffer();
+        StringBuilder httpRequest = new StringBuilder();
         ByteBuffer byteBuffer = ByteBuffer.allocate(bufferSize);
 
         do {
@@ -29,7 +24,7 @@ public class HttpRequestHandler {
             }
 
             byteBuffer.rewind();
-            StringBuffer stringBuffer = new StringBuffer(count);
+            StringBuilder stringBuffer = new StringBuilder(count);
             for (int i = 0; i < count; i++) {
                 stringBuffer.append((char)byteBuffer.get());
             }
@@ -37,7 +32,6 @@ public class HttpRequestHandler {
             byteBuffer.rewind();
         } while (count == bufferSize);
 
-        System.out.println("\n\n---\n" + httpRequest + "\n---\n\n");
         httpHeader = HttpHeaderClient.createHttpHeaderReader(httpRequest.toString());
         System.out.println(httpHeader.getHttpHeader());
         return this;

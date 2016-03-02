@@ -3,9 +3,6 @@ import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
-/**
- * Created by mhty on 26.02.16.
- */
 public class HttpServer extends Thread{
     private int port;
     private InetSocketAddress inetSocketAddress;
@@ -56,20 +53,25 @@ public class HttpServer extends Thread{
     public void run() {
         while (active) {
             System.out.println("Waiting for connections");
-            try (SocketChannel socketChannel = serverSocketChannel.accept();){
+            try (SocketChannel socketChannel = serverSocketChannel.accept()){
                 if (socketChannel == null) {        //в неблокирующем режиме метод accept() возвращает null если нет новых подключений
                     Thread.sleep(timeout);
                 } else {
                     System.out.println("Incoming connection from: " + socketChannel.socket().getRemoteSocketAddress());
 
                     HttpRequestHandler requestHandler = new HttpRequestHandler(socketChannel).readHeader();
-                    requestHandler.httpHeader.checkPathIsFolder(indexFilename);
+                    try{
+                        requestHandler.httpHeader.checkPathIsFolder(indexFilename);
+                    } catch (RuntimeException e) {
+                        HttpRequestAnswer
+                                .createHttpRequestAnswer(socketChannel)
+                                .setBadAnswer()
+                                .make();
+                    }
                     HttpRequestAnswer
                             .createHttpRequestAnswer(socketChannel)
-                            .setPath(requestHandler.httpHeader.getPath())
-                            .setBadAnswer();
-
-
+                            .setPath(homeDirectory + requestHandler.httpHeader.getPath())
+                            .make();
 
                 }
             } catch (IOException e) {
