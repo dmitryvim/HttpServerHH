@@ -1,5 +1,3 @@
-import io.netty.handler.codec.http.HttpRequest;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
@@ -11,13 +9,13 @@ import java.util.LinkedList;
 public class HttpRequestAnswer {
     private SocketChannel socketChannel;
     private String path;
-    private HttpHeaderServer httpHeader;
+    private HttpHeaderWriter httpHeader;
     private LinkedList<ByteBuffer> pageBuffers;
     private int defaultBufferSize = 1024;
 
     private HttpRequestAnswer(SocketChannel socketChannel) {
         this.socketChannel = socketChannel;
-        httpHeader = HttpHeaderServer.createHttpHeaderWriter(HttpHeader.HTTP_CODE_SUCCESS);
+        httpHeader = HttpHeaderWriter.createHttpHeaderWriter(HttpHeader.HTTP_CODE_SUCCESS);
         pageBuffers = new LinkedList<>();
     }
 
@@ -103,4 +101,24 @@ public class HttpRequestAnswer {
     }
 
 
+    public HttpRequestAnswer setCodeNotFound() {
+        String html = "<html>\n" +
+                "<head><title>404 Code not found</title></head>\n" +
+                "<body bgcolor=\"white\">\n" +
+                "<center><h1>404 Code not found</h1></center>\n" +
+                "<hr><center>mhServer</center>\n" +
+                "</body>\n" +
+                "</html>";
+        pageBuffers.clear();
+        pageBuffers.add(ByteBuffer.wrap(html.getBytes()));
+
+        httpHeader.setCode(HttpHeader.HTTP_CODE_NOT_FOUND);
+        httpHeader.setStatus("Code note found");
+        httpHeader.setContentLength(html.length());
+        httpHeader.addParameter("Server", "mhServer 0.0.1");
+        httpHeader.addParameter("Content-type:", "text/html; charset=utf-8");
+        httpHeader.addParameter("Connection", "close");
+
+        return this;
+    }
 }

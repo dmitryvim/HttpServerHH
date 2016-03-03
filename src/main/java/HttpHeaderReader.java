@@ -1,7 +1,5 @@
-/**
- * Created by mhty on 26.02.16.
- */
-public class HttpHeaderClient extends HttpHeader {
+
+public class HttpHeaderReader extends HttpHeader {
     final static String METHOD_GET_STRING = "GET";
     final static char folderDelimiter = '/';
 
@@ -10,11 +8,11 @@ public class HttpHeaderClient extends HttpHeader {
     private String version;
 
 
-    public static HttpHeaderClient createHttpHeaderReader(String headerString) {
-        return new HttpHeaderClient(headerString);
+    public static HttpHeaderReader createHttpHeaderReader(String headerString) {
+        return new HttpHeaderReader(headerString);
     }
 
-    private HttpHeaderClient(String headerString) {
+    private HttpHeaderReader(String headerString) {
         super();
         parseString(headerString);
     }
@@ -58,7 +56,7 @@ public class HttpHeaderClient extends HttpHeader {
     public void  checkPathIsFolder(String indexFilename) {
         if(path.charAt(path.length() - 1) == folderDelimiter) {
             path += indexFilename;
-        };
+        }
     }
 
 
