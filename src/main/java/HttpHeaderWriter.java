@@ -1,37 +1,34 @@
-/**
- * Created by mhty on 26.02.16.
- */
-public class HttpHeaderServer extends HttpHeader{
+
+public class HttpHeaderWriter extends HttpHeader{
 
     private String status = HTTP_STATUS_SUCCESS;
     private int code = HTTP_CODE_SUCCESS;
     private String version = "HTTP/1.1";
 
-    private HttpHeaderServer() {
+    private HttpHeaderWriter() {
         super();
     }
 
-    public static HttpHeaderServer createHttpHeaderWriter(int code) {
-        HttpHeaderServer httpHeader = new HttpHeaderServer();
-        return httpHeader;
+    public static HttpHeaderWriter createHttpHeaderWriter(int code) {
+        return new HttpHeaderWriter();
     }
 
-    public HttpHeaderServer setStatus(String status) {
+    public HttpHeaderWriter setStatus(String status) {
         this.status = status;
         return this;
     }
 
-    public HttpHeaderServer setCode(int code) {
+    public HttpHeaderWriter setCode(int code) {
         this.code = code;
         return this;
     }
 
-    public HttpHeaderServer setVersion(String version) {
+    public HttpHeaderWriter setVersion(String version) {
         this.version = version;
         return this;
     }
 
-    public HttpHeaderServer setContentLength(int size) {
+    public HttpHeaderWriter setContentLength(int size) {
         addParameter("Content-length", String.valueOf(size));
         return this;
     }

@@ -4,7 +4,7 @@ import java.nio.channels.SocketChannel;
 
 public class HttpRequestHandler {
     private SocketChannel socketChannel;
-    public HttpHeaderClient httpHeader;
+    public HttpHeaderReader httpHeader;
 
     public HttpRequestHandler(SocketChannel socketChannel) {
         this.socketChannel = socketChannel;
@@ -24,15 +24,17 @@ public class HttpRequestHandler {
             }
 
             byteBuffer.rewind();
-            StringBuilder stringBuffer = new StringBuilder(count);
-            for (int i = 0; i < count; i++) {
-                stringBuffer.append((char)byteBuffer.get());
+            if (count > 0) {
+                StringBuffer stringBuffer = new StringBuffer(count);
+                for (int i = 0; i < count; i++) {
+                    stringBuffer.append((char) byteBuffer.get());
+                }
+                httpRequest.append(stringBuffer.toString());
+                byteBuffer.rewind();
             }
-            httpRequest.append(stringBuffer.toString());
-            byteBuffer.rewind();
         } while (count == bufferSize);
 
-        httpHeader = HttpHeaderClient.createHttpHeaderReader(httpRequest.toString());
+        httpHeader = HttpHeaderReader.createHttpHeaderReader(httpRequest.toString());
         System.out.println(httpHeader.getHttpHeader());
         return this;
     }

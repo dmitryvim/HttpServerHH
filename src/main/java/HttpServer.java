@@ -62,16 +62,24 @@ public class HttpServer extends Thread{
                     HttpRequestHandler requestHandler = new HttpRequestHandler(socketChannel).readHeader();
                     try{
                         requestHandler.httpHeader.checkPathIsFolder(indexFilename);
+                        if (!FileReader.createFileReader(homeDirectory + requestHandler.httpHeader.getPath()).exist()) {
+                            HttpRequestAnswer
+                                    .createHttpRequestAnswer(socketChannel)
+                                    .setCodeNotFound()
+                                    .make();
+                        } else {
+                            HttpRequestAnswer
+                                    .createHttpRequestAnswer(socketChannel)
+                                    .setPath(homeDirectory + requestHandler.httpHeader.getPath())
+                                    .make();
+                        }
                     } catch (RuntimeException e) {
                         HttpRequestAnswer
                                 .createHttpRequestAnswer(socketChannel)
                                 .setBadAnswer()
                                 .make();
                     }
-                    HttpRequestAnswer
-                            .createHttpRequestAnswer(socketChannel)
-                            .setPath(homeDirectory + requestHandler.httpHeader.getPath())
-                            .make();
+
 
                 }
             } catch (IOException e) {
