@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,6 +16,14 @@ public class FileReader {
     }
 
     public boolean exist() {
-        return Files.isReadable(path);
+        return Files.exists(path);
+    }
+
+    public byte[] read() throws IOException {
+        return Files.readAllBytes(path);
+    }
+
+    public Path getPath() {
+        return path;
     }
 }

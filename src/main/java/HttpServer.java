@@ -2,11 +2,23 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class HttpServer extends Thread{
     private int port;
     private InetSocketAddress inetSocketAddress;
     private ServerSocketChannel serverSocketChannel;
+    private String homeDirectory;
+    private String indexFilename = "index.html";
+    private int timeout = 2000;
+    private volatile boolean active = true;
+    private ExecutorService executorService;
+    private FileCash cash;
+
+    public FileCash getCash() {
+        return cash;
+    }
 
     public String getHomeDirectory() {
         return homeDirectory;
@@ -16,19 +28,14 @@ public class HttpServer extends Thread{
         return indexFilename;
     }
 
-    private String homeDirectory;
-    private String indexFilename = "index.html";
-    private int timeout = 2000;
-    private volatile boolean active = true;
-
-
-
     public static HttpServer build() {
         return new HttpServer();
     }
 
     private HttpServer() {
         super();
+        executorService = Executors.newFixedThreadPool(4);
+        cash = new FileCash();
     }
 
     public HttpServer setInetPort(int port) {
@@ -60,18 +67,21 @@ public class HttpServer extends Thread{
 
     @Override
     public void run() {
+        init();
+
         while (active) {
-            System.out.println("Waiting for connections");
-            try (SocketChannel socketChannel = serverSocketChannel.accept()){
+            System.out.println("Waiting for connections " + Thread.currentThread().getName());
+            try (final SocketChannel socketChannel = serverSocketChannel.accept()){
                 if (socketChannel == null) {
                     Thread.sleep(timeout);
                 } else {
                     System.out.println("Incoming connection from: " + socketChannel.socket().getRemoteSocketAddress());
-
-                    HttpRequestHandler requestHandler = new HttpRequestHandler(socketChannel).readHeader();
-                    requestHandler
-                            .setHttpServer(this)
-                            .run();
+//                    executorService.submit((Runnable) () -> {
+//                        HttpRequestHandler requestHandler = HttpRequestHandler.createHttpRequestHandler().setSocketChannel(socketChannel).setHttpServer(this);
+//                        requestHandler.run();
+//                    });
+                    HttpRequestHandler requestHandler = HttpRequestHandler.createHttpRequestHandler().setSocketChannel(socketChannel).setHttpServer(this);
+                    requestHandler.run();
 
                 }
             } catch (InterruptedException e) {
@@ -84,9 +94,7 @@ public class HttpServer extends Thread{
         }
     }
 
-    @Override
-    public synchronized void start() {
-
+    private void init() {
         try {
             active = true;
             serverSocketChannel = ServerSocketChannel.open();
@@ -95,8 +103,6 @@ public class HttpServer extends Thread{
         } catch (IOException e) {
             throw new RuntimeException("Start server error:" + e);
         }
-
-        super.start();
     }
 
     public void stopServer() {

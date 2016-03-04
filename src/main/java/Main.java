@@ -12,15 +12,9 @@ public class Main {
     public  static void main (String [] argv){
         HttpServer httpServer = HttpServer
                 .build()
-                .setInetPort(12346)
+                .setInetPort(1234)
                 .setHomeDirectory("/home/dmitry/IdeaProjects/HttpServerHH/server-home");
                 //.setHomeDirectory("/Users/mhty/IdeaProjects/HttpServer/server-home");
-        httpServer.start();
-        try {
-            sleep(1000 * 60);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        httpServer.stopServer();
+        httpServer.run();
     }
 }

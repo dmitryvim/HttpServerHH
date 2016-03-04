@@ -15,6 +15,9 @@ public abstract class HttpHeader {
     final static public int HTTP_CODE_METHOD_NOT_ALLOWED = 405;
 
     final static public String HTTP_STATUS_SUCCESS = "OK";
+    final static public String HTTP_STATUS_NOT_FOUND = "Not Found";
+    final static public String HTTP_STATUS_BAD_REQUEST = "Bad Request";
+    final static public String HTTP_STATUS_METHOD_NOT_ALLOWED = "Not Allowed";
 
     private HashMap<String, String> parameters;
 
@@ -22,8 +25,6 @@ public abstract class HttpHeader {
         parameters = new HashMap<>();
 
     }
-
-
 
     abstract protected void parseFirstLine(String line);
 
