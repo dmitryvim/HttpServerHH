@@ -7,6 +7,15 @@ public class HttpServer extends Thread{
     private int port;
     private InetSocketAddress inetSocketAddress;
     private ServerSocketChannel serverSocketChannel;
+
+    public String getHomeDirectory() {
+        return homeDirectory;
+    }
+
+    public String getIndexFilename() {
+        return indexFilename;
+    }
+
     private String homeDirectory;
     private String indexFilename = "index.html";
     private int timeout = 2000;
@@ -54,38 +63,22 @@ public class HttpServer extends Thread{
         while (active) {
             System.out.println("Waiting for connections");
             try (SocketChannel socketChannel = serverSocketChannel.accept()){
-                if (socketChannel == null) {        //в неблокирующем режиме метод accept() возвращает null если нет новых подключений
+                if (socketChannel == null) {
                     Thread.sleep(timeout);
                 } else {
                     System.out.println("Incoming connection from: " + socketChannel.socket().getRemoteSocketAddress());
 
                     HttpRequestHandler requestHandler = new HttpRequestHandler(socketChannel).readHeader();
-                    try{
-                        requestHandler.httpHeader.checkPathIsFolder(indexFilename);
-                        if (!FileReader.createFileReader(homeDirectory + requestHandler.httpHeader.getPath()).exist()) {
-                            HttpRequestAnswer
-                                    .createHttpRequestAnswer(socketChannel)
-                                    .setCodeNotFound()
-                                    .make();
-                        } else {
-                            HttpRequestAnswer
-                                    .createHttpRequestAnswer(socketChannel)
-                                    .setPath(homeDirectory + requestHandler.httpHeader.getPath())
-                                    .make();
-                        }
-                    } catch (RuntimeException e) {
-                        HttpRequestAnswer
-                                .createHttpRequestAnswer(socketChannel)
-                                .setBadAnswer()
-                                .make();
-                    }
-
+                    requestHandler
+                            .setHttpServer(this)
+                            .run();
 
                 }
-            } catch (IOException e) {
-                throw new RuntimeException("Server socket channel accept exception:" + e);
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw new RuntimeException("Thread sleeping exception:" + e);
+            } catch (IOException e) {
+                throw new RuntimeException("Server socket accept exception:" + e);
             }
 
         }

@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.channels.SocketChannel;
@@ -70,7 +71,10 @@ public class HttpRequestAnswer {
                 contentLength += count;
             } while (count == defaultBufferSize);
 
-        } catch ( IOException e ) {
+        } catch (InterruptedIOException e) {
+            System.out.println("HttpAnswer answer interrupted exception [path: " + path + "]\n");
+            Thread.currentThread().interrupt();
+        }catch ( IOException e ) {
             throw new RuntimeException("File read exception " + path + "\n");
         }
 
@@ -87,6 +91,9 @@ public class HttpRequestAnswer {
                 socketChannel.write(buffer);
             }
             socketChannel.close();
+        } catch (InterruptedIOException e) {
+            System.out.println("HttpAnswerAnswer InterruptedIOException [path: " + path + "]\n");
+            Thread.currentThread().interrupt();
         } catch (IOException e) {
             throw new RuntimeException("Socket channel write exception.\n");
         }
@@ -101,7 +108,7 @@ public class HttpRequestAnswer {
     }
 
 
-    public HttpRequestAnswer setCodeNotFound() {
+    public HttpRequestAnswer setNotFound() {
         String html = "<html>\n" +
                 "<head><title>404 Code not found</title></head>\n" +
                 "<body bgcolor=\"white\">\n" +

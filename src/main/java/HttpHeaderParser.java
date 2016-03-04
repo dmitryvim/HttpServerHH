@@ -1,5 +1,5 @@
 
-public class HttpHeaderReader extends HttpHeader {
+public class HttpHeaderParser extends HttpHeader {
     final static String METHOD_GET_STRING = "GET";
     final static char folderDelimiter = '/';
 
@@ -8,11 +8,11 @@ public class HttpHeaderReader extends HttpHeader {
     private String version;
 
 
-    public static HttpHeaderReader createHttpHeaderReader(String headerString) {
-        return new HttpHeaderReader(headerString);
+    public static HttpHeaderParser createHttpHeaderReader(String headerString) {
+        return new HttpHeaderParser(headerString);
     }
 
-    private HttpHeaderReader(String headerString) {
+    private HttpHeaderParser(String headerString) {
         super();
         parseString(headerString);
     }
@@ -33,7 +33,8 @@ public class HttpHeaderReader extends HttpHeader {
     protected void parseFirstLine(String line)  {
         String[] parsedParameter = line.split(" ", 3);
         if (parsedParameter.length < 3) {
-            throw new RuntimeException("Read first line http request exeption. \"" + line + "\"\n");
+            //throw new RuntimeException("Read first line http request exeption. \"" + line + "\"\n");
+            System.out.println("Cannot read first line " + line + "\n");
         }
         method = parsedParameter[0];
         path = parsedParameter[1];
