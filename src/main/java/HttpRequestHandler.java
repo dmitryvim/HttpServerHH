@@ -1,13 +1,20 @@
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-public class HttpRequestHandler {
+public class HttpRequestHandler implements Runnable {
     private SocketChannel socketChannel;
-    public HttpHeaderReader httpHeader;
+    public HttpHeaderParser httpHeader;
+    private HttpServer httpServer;
 
     public HttpRequestHandler(SocketChannel socketChannel) {
         this.socketChannel = socketChannel;
+    }
+
+    public HttpRequestHandler setHttpServer(HttpServer httpServer) {
+        this.httpServer = httpServer;
+        return this;
     }
 
     public HttpRequestHandler readHeader() {
@@ -34,9 +41,31 @@ public class HttpRequestHandler {
             }
         } while (count == bufferSize);
 
-        httpHeader = HttpHeaderReader.createHttpHeaderReader(httpRequest.toString());
+        httpHeader = HttpHeaderParser.createHttpHeaderReader(httpRequest.toString());
         System.out.println(httpHeader.getHttpHeader());
         return this;
     }
 
+    @Override
+    public void run() {
+        try {
+            httpHeader.checkPathIsFolder(httpServer.getIndexFilename());
+            if (!FileReader.createFileReader(httpServer.getHomeDirectory() + httpHeader.getPath()).exist()) {
+                HttpRequestAnswer
+                        .createHttpRequestAnswer(socketChannel)
+                        .setNotFound()
+                        .make();
+            } else {
+                HttpRequestAnswer
+                        .createHttpRequestAnswer(socketChannel)
+                        .setPath(httpServer.getHomeDirectory() + httpHeader.getPath())
+                        .make();
+            }
+        } catch (RuntimeException e) {
+            HttpRequestAnswer
+                    .createHttpRequestAnswer(socketChannel)
+                    .setBadAnswer()
+                    .make();
+        }
+    }
 }
