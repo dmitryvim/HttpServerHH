@@ -38,8 +38,7 @@ public class HttpHeaderWriter extends HttpHeader{
     protected void parseFirstLine(String line) {
         String[] parsedParameter = line.split(" ", 3);
         if (parsedParameter.length < 3) {
-            //throw new RuntimeException("Read first line http request exeption. \"" + line + "\"\n");
-            System.out.println("Cannot read first line " + line + "\n");
+            throw new RuntimeException("Read first line http request exeption. \"" + line + "\"\n");
         }
         version = parsedParameter[0];
         code = Integer.parseInt(parsedParameter[1]);

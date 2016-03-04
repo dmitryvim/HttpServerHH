@@ -8,8 +8,17 @@ public class HttpRequestHandler implements Runnable {
     public HttpHeaderParser httpHeader;
     private HttpServer httpServer;
 
-    public HttpRequestHandler(SocketChannel socketChannel) {
+    private HttpRequestHandler() {
+        super();
+    };
+
+    static public HttpRequestHandler createHttpRequestHandler() {
+        return new HttpRequestHandler();
+    }
+
+    public HttpRequestHandler setSocketChannel(SocketChannel socketChannel) {
         this.socketChannel = socketChannel;
+        return this;
     }
 
     public HttpRequestHandler setHttpServer(HttpServer httpServer) {
@@ -17,7 +26,7 @@ public class HttpRequestHandler implements Runnable {
         return this;
     }
 
-    public HttpRequestHandler readHeader() {
+    private HttpRequestHandler readHeader() {
         final int bufferSize = 200;
         int count;
         StringBuilder httpRequest = new StringBuilder();
@@ -42,25 +51,28 @@ public class HttpRequestHandler implements Runnable {
         } while (count == bufferSize);
 
         httpHeader = HttpHeaderParser.createHttpHeaderReader(httpRequest.toString());
-        System.out.println(httpHeader.getHttpHeader());
         return this;
+    }
+
+    private void writeAnswer() {
+        HttpRequestAnswer answer = HttpRequestAnswer.createHttpRequestAnswer(socketChannel);
+        if (httpServer.getCash().checkPage(httpHeader.getPath())) {
+            answer
+                    .setPageBytes(httpServer.getCash().getPage(httpHeader.getPath()))
+                    .make();
+        } else {
+            answer.setPath(httpServer.getHomeDirectory() + httpHeader.getPath());
+            httpServer.getCash().addPage(httpHeader.getPath(), answer.getPageBytes());
+            answer.make();
+        }
     }
 
     @Override
     public void run() {
+        System.out.println(Thread.currentThread().getName());
         try {
-            httpHeader.checkPathIsFolder(httpServer.getIndexFilename());
-            if (!FileReader.createFileReader(httpServer.getHomeDirectory() + httpHeader.getPath()).exist()) {
-                HttpRequestAnswer
-                        .createHttpRequestAnswer(socketChannel)
-                        .setNotFound()
-                        .make();
-            } else {
-                HttpRequestAnswer
-                        .createHttpRequestAnswer(socketChannel)
-                        .setPath(httpServer.getHomeDirectory() + httpHeader.getPath())
-                        .make();
-            }
+            readHeader();
+            writeAnswer();
         } catch (RuntimeException e) {
             HttpRequestAnswer
                     .createHttpRequestAnswer(socketChannel)
