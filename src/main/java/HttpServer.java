@@ -11,7 +11,7 @@ public class HttpServer extends Thread{
     private ServerSocketChannel serverSocketChannel;
     private String homeDirectory;
     private String indexFilename = "index.html";
-    private int timeout = 2000;
+    private int timeout = 1500;
     private volatile boolean active = true;
     private ExecutorService executorService;
     private FileCash cash;
@@ -72,9 +72,7 @@ public class HttpServer extends Thread{
         while (active) {
             System.out.println("Waiting for connections " + Thread.currentThread().getName());
             try (final SocketChannel socketChannel = serverSocketChannel.accept()){
-                if (socketChannel == null) {
-                    Thread.sleep(timeout);
-                } else {
+                if (socketChannel != null) {
                     System.out.println("Incoming connection from: " + socketChannel.socket().getRemoteSocketAddress());
 //                    executorService.submit((Runnable) () -> {
 //                        HttpRequestHandler requestHandler = HttpRequestHandler.createHttpRequestHandler().setSocketChannel(socketChannel).setHttpServer(this);
@@ -84,9 +82,6 @@ public class HttpServer extends Thread{
                     requestHandler.run();
 
                 }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException("Thread sleeping exception:" + e);
             } catch (IOException e) {
                 throw new RuntimeException("Server socket accept exception:" + e);
             }
@@ -99,7 +94,7 @@ public class HttpServer extends Thread{
             active = true;
             serverSocketChannel = ServerSocketChannel.open();
             serverSocketChannel.socket().bind(inetSocketAddress);
-            serverSocketChannel.configureBlocking(false);
+            serverSocketChannel.configureBlocking(true);
         } catch (IOException e) {
             throw new RuntimeException("Start server error:" + e);
         }

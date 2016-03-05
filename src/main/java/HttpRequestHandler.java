@@ -10,7 +10,7 @@ public class HttpRequestHandler implements Runnable {
 
     private HttpRequestHandler() {
         super();
-    };
+    }
 
     static public HttpRequestHandler createHttpRequestHandler() {
         return new HttpRequestHandler();
@@ -29,7 +29,7 @@ public class HttpRequestHandler implements Runnable {
     private HttpRequestHandler readHeader() {
         final int bufferSize = 200;
         int count;
-        StringBuilder httpRequest = new StringBuilder();
+        StringBuilder requestHeaderText = new StringBuilder();
         ByteBuffer byteBuffer = ByteBuffer.allocate(bufferSize);
 
         do {
@@ -45,26 +45,39 @@ public class HttpRequestHandler implements Runnable {
                 for (int i = 0; i < count; i++) {
                     stringBuffer.append((char) byteBuffer.get());
                 }
-                httpRequest.append(stringBuffer.toString());
+                requestHeaderText.append(stringBuffer.toString());
                 byteBuffer.rewind();
             }
         } while (count == bufferSize);
 
-        httpHeader = HttpHeaderParser.createHttpHeaderReader(httpRequest.toString());
+        httpHeader = HttpHeaderParser.createHttpHeaderReader(requestHeaderText.toString());
+
+        System.out.println("input Header:\n" + httpHeader);
         return this;
     }
 
     private void writeAnswer() {
         HttpRequestAnswer answer = HttpRequestAnswer.createHttpRequestAnswer(socketChannel);
-        if (httpServer.getCash().checkPage(httpHeader.getPath())) {
+        if (httpServer.getCash().checkPage(getPath())) {
+            System.out.println("use cash " + getPath() + "\n");
             answer
-                    .setPageBytes(httpServer.getCash().getPage(httpHeader.getPath()))
+                    .setPageBytes(httpServer.getCash().getPage(getPath()))
                     .make();
         } else {
-            answer.setPath(httpServer.getHomeDirectory() + httpHeader.getPath());
-            httpServer.getCash().addPage(httpHeader.getPath(), answer.getPageBytes());
+            System.out.println("use file " + getPath() + "\n");
+
+            answer.setPath(getPath());
+            httpServer.getCash().addPage(getPath(), answer.getPageBytes());
             answer.make();
         }
+    }
+
+    private String getPath() {
+        String path = httpServer.getHomeDirectory() + httpHeader.getPath();
+        if (isDirectory(path)) {
+            path = addIndex(path);
+        }
+        return path;
     }
 
     @Override
@@ -79,5 +92,15 @@ public class HttpRequestHandler implements Runnable {
                     .setBadAnswer()
                     .make();
         }
+    }
+
+
+
+    public boolean isDirectory(String uri) {
+        return uri.endsWith("/");
+    }
+
+    public String addIndex(String uri) {
+        return uri + httpServer.getIndexFilename();
     }
 }

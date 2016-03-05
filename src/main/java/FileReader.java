@@ -15,12 +15,16 @@ public class FileReader {
         return new FileReader(filename);
     }
 
-    public boolean exist() {
-        return Files.exists(path);
+    public boolean exists() {
+        return Files.exists(path) && Files.isRegularFile(path);
     }
 
-    public byte[] read() throws IOException {
-        return Files.readAllBytes(path);
+    public byte[] read(){
+        try {
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot read file " + path);
+        }
     }
 
     public Path getPath() {

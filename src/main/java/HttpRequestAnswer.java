@@ -1,11 +1,6 @@
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SeekableByteChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.LinkedList;
 
 public class HttpRequestAnswer {
     private SocketChannel socketChannel;
@@ -55,11 +50,11 @@ public class HttpRequestAnswer {
     }
 
     public HttpRequestAnswer setPath(String path) {
-        System.out.println("Path " + path);
+        System.out.println("answer prepare. Path: " + path);
         fileReader = FileReader.createFileReader(path);
 
-        if (!fileReader.exist()) {
-            getBytePage();
+        if (fileReader.exists()) {
+            readFile();
             httpHeader.setCode(HttpHeader.HTTP_CODE_BAD_REQUEST);
             httpHeader.setStatus(HttpHeader.HTTP_STATUS_SUCCESS);
         } else {
@@ -73,12 +68,9 @@ public class HttpRequestAnswer {
         return this;
     }
 
-    private void getBytePage() {
-        try {
-            byteHtml = fileReader.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void readFile() {
+        System.out.println("Try to read file: " + fileReader.getPath());
+        byteHtml = fileReader.read();
         httpHeader.setContentLength(byteHtml.length);
     }
 
@@ -88,11 +80,8 @@ public class HttpRequestAnswer {
             socketChannel.write(ByteBuffer.wrap(httpHeader.getBytes()));
             socketChannel.write(ByteBuffer.wrap(byteHtml));
             socketChannel.close();
-        } catch (InterruptedIOException e) {
-            System.out.println("HttpAnswerAnswer InterruptedIOException [path: " + fileReader.getPath() + "]\n");
-            Thread.currentThread().interrupt();
         } catch (IOException e) {
-            throw new RuntimeException("Socket channel write exception.\n");
+            throw new RuntimeException("Socket channel write exception.\n" + fileReader.getPath() + "\n" + e);
         }
     }
 
