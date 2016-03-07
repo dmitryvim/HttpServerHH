@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<server>
+    <name>mhServer</name>
+    <version>0.0.1</version>
+    <http-version>HTTP/1.1</http-version>
+    <home-directory>/Users/mhty/IdeaProjects/HttpServer/server-home</home-directory>
+    <index-file>index.html</index-file>
+    <port>8081</port>
+    <file-cash-timeout>60000</file-cash-timeout>
+    <system-page-path>
+        <not-found>/Users/mhty/IdeaProjects/HttpServer/server-settings/p404.html</not-found>
+        <bad-request>/Users/mhty/IdeaProjects/HttpServer/server-settings/p400.html</bad-request>
+    </system-page-path>
+</server>

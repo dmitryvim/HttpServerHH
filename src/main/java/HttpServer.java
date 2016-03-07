@@ -11,7 +11,6 @@ public class HttpServer extends Thread{
     private ServerSocketChannel serverSocketChannel;
     private String homeDirectory;
     private String indexFilename = "index.html";
-    private int timeout = 1500;
     private volatile boolean active = true;
     private ExecutorService executorService;
     private FileCash cash;
@@ -40,7 +39,7 @@ public class HttpServer extends Thread{
 
     public HttpServer setInetPort(int port) {
         this.port = port;
-        inetSocketAddress = new InetSocketAddress(port);
+        inetSocketAddress = new InetSocketAddress(this.port);
         return this;
     }
 
@@ -57,11 +56,6 @@ public class HttpServer extends Thread{
 
     public HttpServer setIndexFilename(String indexFilename) {
         this.indexFilename = indexFilename;
-        return this;
-    }
-
-    public HttpServer setTimeout(int timeout) {
-        this.timeout = timeout;
         return this;
     }
 
