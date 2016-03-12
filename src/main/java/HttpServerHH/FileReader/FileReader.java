@@ -87,4 +87,18 @@ public class FileReader {
         LOGGER.trace("Server time, last modified \n\tpath: {} \n\ttime: {}", path.toString(), result);
         return result;
     }
+
+    public String getContentType() {
+        pathCheck();
+        String pathString = path.toString();
+        String extension = pathString.substring(pathString.lastIndexOf('.') + 1);
+
+        if (extension.equals("jpg")) {
+            return "image/jpeg";
+        }
+        if (extension.equals("js")) {
+            return "application/javascript";
+        }
+        return "text/html; charset=utf-8";
+    }
 }

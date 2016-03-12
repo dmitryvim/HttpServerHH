@@ -80,7 +80,7 @@ public class HttpRequestAnswer {
         httpHeader.setHttpVersion(settings.getHttpVersion());
         httpHeader.setContentLength(byteHtml.length);
         httpHeader.addParameter("Server", settings.getServerName() + " " + settings.getServerVersion());
-        httpHeader.addParameter("Content-type", "text/html; charset=utf-8");
+        httpHeader.addParameter("Content-type", fileReader.getContentType());
         httpHeader.addParameter("Connection", "close");
         httpHeader.addParameter("Cache-Control", "max-age=3600");
         httpHeader.addParameter("Last-Modified", fileReader.getLastModified());
