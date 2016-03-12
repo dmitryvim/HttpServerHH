@@ -3,9 +3,12 @@ package HttpServerHH.HttpServer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,19 +67,16 @@ public class ServerSettings {
         return getAttr(DIR_BAD_REQUEST_KEY);
     }
 
-    public static ServerSettings createServerSettings(String filename) {
+    public static ServerSettings createServerSettings(String filename) throws IOException, SAXException, ParserConfigurationException {
         return new ServerSettings(filename).init();
     }
 
-    private ServerSettings(String filename) {
+    private ServerSettings(String filename) throws ParserConfigurationException, IOException, SAXException {
         attributes = new HashMap<>();
-        try {
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            document = documentBuilder.parse(filename);
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot read server settings document");
-        }
+
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        document = documentBuilder.parse(filename);
     }
 
     private ServerSettings init() {

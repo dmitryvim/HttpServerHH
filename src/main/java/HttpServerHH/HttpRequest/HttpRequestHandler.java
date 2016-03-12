@@ -2,7 +2,7 @@ package HttpServerHH.HttpRequest;
 
 import HttpServerHH.HttpHeader.HttpHeaderParser;
 import HttpServerHH.HttpServer.ServerSettings;
-import HttpServerHH.HttpServer.ServerFileCash;
+import HttpServerHH.FileReader.ServerFileCash;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

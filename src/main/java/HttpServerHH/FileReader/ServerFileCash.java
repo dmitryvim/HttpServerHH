@@ -1,4 +1,4 @@
-package HttpServerHH.HttpServer;
+package HttpServerHH.FileReader;
 
 import javafx.util.Pair;
 
