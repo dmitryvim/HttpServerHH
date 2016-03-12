@@ -66,7 +66,7 @@ public class HttpRequestAnswer {
         httpHeader.setHttpVersion(settings.getHttpVersion());
         httpHeader.setContentLength(byteHtml.length);
         httpHeader.addParameter("Server", settings.getServerName() + " " + settings.getServerVersion());
-        httpHeader.addParameter("Content-type:", "text/html; charset=utf-8");
+        httpHeader.addParameter("Content-type", "text/html; charset=utf-8");
         httpHeader.addParameter("Connection", "close");
     }
 
