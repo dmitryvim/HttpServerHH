@@ -1,8 +1,9 @@
 package HttpServerHH.FileReader;
 
 import javafx.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.sql.Time;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,11 +11,13 @@ import java.util.Map;
 /**
  * Created by dmitry on 3/4/16.
  */
-public class ServerFileCash {
+public class FileCash {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileCash.class);
+
     private Map<String, Pair<Long, byte[]>> cashedPages;
     private int timeout = 1000 * 60;
 
-    public ServerFileCash() {
+    public FileCash() {
         this.cashedPages = new HashMap<>();
     }
 
@@ -22,12 +25,12 @@ public class ServerFileCash {
         return Calendar.getInstance().getTimeInMillis();
     }
 
-    private boolean checkExistance(String uri) {
+    private boolean checkExistence(String uri) {
         return cashedPages.containsKey(uri);
     }
 
     private void checkTime(String uri) {
-        if (checkExistance(uri)) {
+        if (checkExistence(uri)) {
             long time = getNow();
             if (getNow() - cashedPages.get(uri).getKey() > timeout) {
                 cashedPages.remove(uri);
@@ -35,20 +38,22 @@ public class ServerFileCash {
         }
     }
 
-    public boolean checkPage(String uri) {
+    public boolean contains(String uri) {
         checkTime(uri);
-        return checkExistance(uri);
+        return checkExistence(uri);
     }
 
     public byte[] getPage(String uri) {
-        if (!checkPage(uri)) {
+        if (!contains(uri)) {
             return null;
         }
+        LOGGER.debug("Page read {}", uri);
         return cashedPages.get(uri).getValue();
     }
 
     public void addPage(String uri, byte[] page) {
         cashedPages.put(uri, new Pair<>(getNow(), page));
+        LOGGER.debug("Page added {}", uri);
     }
 
     public void setTimeout(int timeout) {

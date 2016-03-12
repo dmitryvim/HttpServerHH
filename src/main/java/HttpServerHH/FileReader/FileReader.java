@@ -21,12 +21,14 @@ public class FileReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileReader.class);
 
     private final static String DEFAULT_CHARSET_NAME = "utf-8";
+    private static FileCash cash = new FileCash();
 
     private Path path;
     private Path defaultPath;
     private String indexFile;
     private boolean flagNotFound = false;
     private String charsetName;
+
 
     public void setCharset(String charsetName) {
         this.charsetName = charsetName;
@@ -45,16 +47,32 @@ public class FileReader {
     public ByteBuffer read(){
         pathCheck();
         try {
-            ByteBuffer byteBuffer = ByteBuffer.wrap(Files.readAllBytes(path));
-
-            Charset defaultCharset = Charset.forName(DEFAULT_CHARSET_NAME);
-            Charset charset = Charset.forName(charsetName);
-
-            CharBuffer charBuffer = defaultCharset.decode(byteBuffer);
-            return charset.encode(charBuffer);
+            if (cash.contains(getCashKey())) {
+                return ByteBuffer.wrap(cash.getPage(getCashKey()));
+            } else {
+                ByteBuffer page = readThroughCharset();
+                byte[] toCash = new byte[page.remaining()];
+                page.rewind();
+                page.get(toCash);
+                cash.addPage(getCashKey(), toCash);
+                page.rewind();
+                return page;
+            }
         } catch (IOException e) {
             throw new RuntimeException("Cannot read file " + path);
         }
+    }
+
+    private String getCashKey() {
+        return path.toString() + " " + charsetName;
+    }
+
+    private ByteBuffer readThroughCharset() throws IOException {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(Files.readAllBytes(path));
+        Charset defaultCharset = Charset.forName(DEFAULT_CHARSET_NAME);
+        Charset charset = Charset.forName(charsetName);
+        CharBuffer charBuffer = defaultCharset.decode(byteBuffer);
+        return charset.encode(charBuffer);
     }
 
     private void pathCheck() {
