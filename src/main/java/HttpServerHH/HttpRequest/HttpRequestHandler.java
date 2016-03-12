@@ -42,30 +42,51 @@ public class HttpRequestHandler extends Thread {
     }
 
     private String readHeaderText() {
-        final int bufferSize = 200;
+        final int bufferSize = 255;
         int count;
+        char prevSymbol = ' ';
+        char symbol;
         StringBuilder requestHeaderText = new StringBuilder();
         ByteBuffer byteBuffer = ByteBuffer.allocate(bufferSize);
 
         do {
-            try {
-                count = socketChannel.read(byteBuffer);
-
-            } catch (IOException e) {
-                throw new RuntimeException("ByteBuffer read error: " + e);
-            }
-
+            count = readBuffer(byteBuffer);
             byteBuffer.rewind();
+
             if (count > 0) {
-                StringBuffer stringBuffer = new StringBuffer(count);
-                for (int i = 0; i < count; i++) {
-                    stringBuffer.append((char) byteBuffer.get());
-                }
-                requestHeaderText.append(stringBuffer.toString());
+                count = addBufferToHeaderText(count, prevSymbol, requestHeaderText, byteBuffer);
                 byteBuffer.rewind();
             }
         } while (count == bufferSize);
         return requestHeaderText.toString();
+    }
+
+    private int readBuffer(ByteBuffer byteBuffer) {
+        int count;
+        try {
+            count = socketChannel.read(byteBuffer);
+        } catch (IOException e) {
+            throw new RuntimeException("ByteBuffer read error: " + e);
+        }
+        return count;
+    }
+
+    private int addBufferToHeaderText(int count, char prevSymbol, StringBuilder requestHeaderText, ByteBuffer byteBuffer) {
+        char symbol;
+        StringBuffer stringBuffer = new StringBuffer(count);
+        for (int i = 0; i < count; i++) {
+            symbol = ((char) byteBuffer.get());
+            if (checkDoubleBackslashN(prevSymbol, symbol)) {
+                count = 0;
+            }
+            stringBuffer.append(symbol);
+        }
+        requestHeaderText.append(stringBuffer.toString());
+        return count;
+    }
+
+    private boolean checkDoubleBackslashN(char prevSymbol, char symbol) {
+        return symbol == '\n' && prevSymbol == '\n';
     }
 
     private void writeAnswer() {
@@ -100,6 +121,12 @@ public class HttpRequestHandler extends Thread {
         }
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        socketChannel.close();
+        LOGGER.trace("close socket channel");
+        super.finalize();
+    }
 
     public boolean isDirectory(String uri) {
         return uri.endsWith("/");
