@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,14 +20,22 @@ import java.util.TimeZone;
 public class FileReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileReader.class);
 
+    private final static String DEFAULT_CHARSET_NAME = "utf-8";
+
     private Path path;
     private Path defaultPath;
     private String indexFile;
     private boolean flagNotFound = false;
+    private String charsetName;
+
+    public void setCharset(String charsetName) {
+        this.charsetName = charsetName;
+    }
 
     private FileReader(String filename) {
         this.path = Paths.get(filename);
         flagNotFound = false;
+        charsetName = DEFAULT_CHARSET_NAME;
     }
 
     public static FileReader createFileReader(String filename) {
@@ -36,7 +46,12 @@ public class FileReader {
         pathCheck();
         try {
             ByteBuffer byteBuffer = ByteBuffer.wrap(Files.readAllBytes(path));
-            return byteBuffer;
+
+            Charset defaultCharset = Charset.forName(DEFAULT_CHARSET_NAME);
+            Charset charset = Charset.forName(charsetName);
+
+            CharBuffer charBuffer = defaultCharset.decode(byteBuffer);
+            return charset.encode(charBuffer);
         } catch (IOException e) {
             throw new RuntimeException("Cannot read file " + path);
         }
@@ -99,6 +114,6 @@ public class FileReader {
         if (extension.equals("js")) {
             return "application/javascript";
         }
-        return "text/html; charset=utf-8";
+        return "text/html; charset=" + charsetName;
     }
 }
