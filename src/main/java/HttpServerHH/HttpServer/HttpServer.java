@@ -1,6 +1,6 @@
 package HttpServerHH.HttpServer;
 
-import HttpServerHH.HttpRequest.HttpRequestHandler;
+import HttpServerHH.HttpRequest.HttpRequestManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,8 +58,8 @@ public class HttpServer extends Thread{
             final SocketChannel socketChannel = serverSocketChannel.accept();
             if (socketChannel != null) {
                 LOGGER.info("Incoming connection from: {}", socketChannel.socket().getRemoteSocketAddress());
-                service.submit(HttpRequestHandler
-                        .createHttpRequestHandler()
+                service.submit(HttpRequestManager
+                        .createHttpRequestManager()
                         .setSocketChannel(socketChannel)
                         .setSettings(settings));
             }
