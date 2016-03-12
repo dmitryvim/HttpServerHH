@@ -1,7 +1,6 @@
 package HttpServerHH.HttpRequest;
 
 import HttpServerHH.FileReader.FileReader;
-import HttpServerHH.HttpHeader.HttpHeader;
 import HttpServerHH.HttpHeader.HttpHeaderWriter;
 import HttpServerHH.HttpServer.ServerSettings;
 import org.slf4j.Logger;
@@ -10,6 +9,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class HttpRequestAnswer {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpRequestAnswer.class);
@@ -49,6 +53,11 @@ public class HttpRequestAnswer {
         return this;
     }
 
+    public HttpRequestAnswer setNotModified() {
+        httpHeader.setNotModified();
+        return this;
+    }
+
     public void make() {
         setHtmlBytes();
         setHeader();
@@ -68,21 +77,29 @@ public class HttpRequestAnswer {
         httpHeader.addParameter("Server", settings.getServerName() + " " + settings.getServerVersion());
         httpHeader.addParameter("Content-type", "text/html; charset=utf-8");
         httpHeader.addParameter("Connection", "close");
+        httpHeader.addParameter("Cache-Control", "max-age=3600");
+        httpHeader.addParameter("Last-Modified", fileReader.getLastModified());
+        httpHeader.addParameter("Date", getNowString());
     }
 
+    private String getNowString() {
+        final SimpleDateFormat format = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);
+        format.setTimeZone(TimeZone.getTimeZone(ZoneId.of("GMT")));
+        return format.format(Calendar.getInstance().getTimeInMillis());
+    }
+
+    static int ccc = 0;
+
     private void setHtmlBytes() {
+//        ccc++;
+//        if (ccc > 1) {
+//            setNotModified();
+//            LOGGER.trace("Not modified");
+//        }
+
         byteHtml = fileReader.read();
         if (fileReader.notFound()) {
             httpHeader.setNotFound();
         }
-    }
-
-    public byte[] getPageBytes() {
-        return byteHtml;
-    }
-
-    public HttpRequestAnswer setPageBytes(byte[] pageBytes) {
-        this.byteHtml = pageBytes;
-        return this;
     }
 }

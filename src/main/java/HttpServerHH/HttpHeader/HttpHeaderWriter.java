@@ -2,11 +2,13 @@ package HttpServerHH.HttpHeader;
 
 public class HttpHeaderWriter extends HttpHeader {
     final static private int HTTP_CODE_SUCCESS = 200;
+    final static private int HTTP_CODE_NOT_MODIFIED = 304;
     final static private int HTTP_CODE_BAD_REQUEST = 400;
     final static private int HTTP_CODE_NOT_FOUND = 404;
     final static private int HTTP_CODE_METHOD_NOT_ALLOWED = 405;
 
     final static private String HTTP_STATUS_SUCCESS = "OK";
+    final static private String HTTP_STATUS_NOT_MODIFIED = "Not Modified";
     final static private String HTTP_STATUS_NOT_FOUND = "Not Found";
     final static private String HTTP_STATUS_BAD_REQUEST = "Bad Request";
     final static private String HTTP_STATUS_METHOD_NOT_ALLOWED = "Not Allowed";
@@ -26,6 +28,11 @@ public class HttpHeaderWriter extends HttpHeader {
     public void setSuccess() {
         setStatus(HTTP_STATUS_SUCCESS);
         setCode(HTTP_CODE_SUCCESS);
+    }
+
+    public void setNotModified() {
+        setStatus(HTTP_STATUS_NOT_MODIFIED);
+        setCode(HTTP_CODE_NOT_MODIFIED);
     }
 
     public void setNotFound() {

@@ -8,6 +8,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 
 public class FileReader {
@@ -62,5 +68,23 @@ public class FileReader {
 
     public boolean notFound() {
         return flagNotFound;
+    }
+
+    public String getLastModified() {
+        pathCheck();
+        long time;
+        try {
+            time = Files.getLastModifiedTime(path).toMillis();
+        } catch (IOException e) {
+            LOGGER.error("Cannot get last modified time", e);
+            time = Calendar.getInstance().getTimeInMillis();
+        }
+        time = time - 60 * 1000;
+        final SimpleDateFormat format = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);
+        format.setTimeZone(TimeZone.getTimeZone(ZoneId.of("GMT")));
+
+        String result = format.format(time);
+        LOGGER.trace("Server time, last modified \n\tpath: {} \n\ttime: {}", path.toString(), result);
+        return result;
     }
 }
