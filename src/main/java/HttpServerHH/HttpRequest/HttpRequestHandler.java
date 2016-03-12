@@ -108,24 +108,32 @@ public class HttpRequestHandler extends Thread {
 
     @Override
     public void run() {
-        System.out.println(Thread.currentThread().getName());
         try {
             readHeader();
             writeAnswer();
         } catch (RuntimeException e) {
+            LOGGER.error("request exception", e);
+            sendBadRequest();
+        } finally {
+            try {
+                LOGGER.trace("socket channel closed");
+                socketChannel.close();
+            } catch (IOException e) {
+                LOGGER.error("Cannot close socket channel", e);
+            }
+        }
+    }
+
+    private void sendBadRequest() {
+        try {
             HttpRequestAnswer
                     .createHttpRequestAnswer(socketChannel)
                     .setSettings(settings)
                     .setBadAnswer()
                     .make();
+        } catch (RuntimeException e) {
+            LOGGER.error("Cannot send bad request", e);
         }
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        socketChannel.close();
-        LOGGER.trace("close socket channel");
-        super.finalize();
     }
 
     public boolean isDirectory(String uri) {
