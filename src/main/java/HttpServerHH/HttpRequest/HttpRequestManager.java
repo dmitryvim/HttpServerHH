@@ -81,7 +81,7 @@ public class HttpRequestManager extends Thread {
         HttpRequestAnswer
                 .createHttpRequestAnswer(socketChannel)
                 .setSettings(settings)
-                .setPath(getPath())
+                .setRequestHeader(httpHeader)
                 .make();
     }
 

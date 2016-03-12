@@ -30,6 +30,10 @@ public abstract class HttpHeader {
         return this;
     }
 
+    public boolean hasParameter(String key) {
+        return parameters.containsKey(key);
+    }
+
     public String getParameter(String key) {
         return parameters.get(key);
     }

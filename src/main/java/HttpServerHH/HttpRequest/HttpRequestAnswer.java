@@ -1,6 +1,7 @@
 package HttpServerHH.HttpRequest;
 
 import HttpServerHH.FileReader.FileReader;
+import HttpServerHH.HttpHeader.HttpHeaderParser;
 import HttpServerHH.HttpHeader.HttpHeaderWriter;
 import HttpServerHH.HttpServer.ServerSettings;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ public class HttpRequestAnswer {
     private SocketChannel socketChannel;
     private FileReader fileReader;
     private HttpHeaderWriter httpHeader;
+    private HttpHeaderParser requestHeader;
     private ByteBuffer byteHtml;
     private ServerSettings settings;
 
@@ -40,21 +42,14 @@ public class HttpRequestAnswer {
         return this;
     }
 
-    public HttpRequestAnswer setPath(String path) {
-        fileReader = FileReader.createFileReader(path);
-        fileReader.setDefaultPath(settings.getPathNotFound());
-        fileReader.setIndexFile(settings.getIndexFile());
-        return this;
-    }
-
     public HttpRequestAnswer setBadAnswer() {
-        setPath(settings.getPathBadRequest());
+        setFileReader(settings.getPathBadRequest());
         httpHeader.setBadRequest();
         return this;
     }
 
     public HttpRequestAnswer setNotAllowed() {
-        setPath(settings.getPathNotAllowed());
+        setFileReader(settings.getPathNotAllowed());
         httpHeader.setNotAllowed();
         return this;
     }
@@ -65,6 +60,8 @@ public class HttpRequestAnswer {
     }
 
     public void make() {
+        setFileReader(requestHeader.getPath());
+        checkCharset();
         setHtmlBytes();
         setHeader();
 
@@ -75,6 +72,21 @@ public class HttpRequestAnswer {
             LOGGER.error("Socket channel write exception.", e);
         }
     }
+
+
+    private void checkCharset() {
+        final String KEY_ACCEPT_CHARSET = "Accept-charset";
+        if (requestHeader.hasParameter(KEY_ACCEPT_CHARSET)) {
+            fileReader.setCharset(requestHeader.getParameter(KEY_ACCEPT_CHARSET));
+        }
+    }
+
+    private void setFileReader(String path) {
+        fileReader = FileReader.createFileReader(settings.getHomeDirectory() + path);
+        fileReader.setDefaultPath(settings.getPathNotFound());
+        fileReader.setIndexFile(settings.getIndexFile());
+    }
+
 
     private void setHeader() {
         httpHeader.setHttpVersion(settings.getHttpVersion());
@@ -98,5 +110,10 @@ public class HttpRequestAnswer {
         if (fileReader.notFound()) {
             httpHeader.setNotFound();
         }
+    }
+
+    public HttpRequestAnswer setRequestHeader(HttpHeaderParser requestHeader) {
+        this.requestHeader = requestHeader;
+        return this;
     }
 }
