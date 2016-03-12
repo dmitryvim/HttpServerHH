@@ -3,12 +3,16 @@ package HttpServerHH.HttpRequest;
 import HttpServerHH.HttpHeader.HttpHeaderParser;
 import HttpServerHH.HttpServer.ServerSettings;
 import HttpServerHH.FileReader.ServerFileCash;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 public class HttpRequestHandler extends Thread {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpRequestHandler.class);
+
     private SocketChannel socketChannel;
     private HttpHeaderParser httpHeader;
     private ServerSettings settings;
@@ -33,8 +37,7 @@ public class HttpRequestHandler extends Thread {
 
     private HttpRequestHandler readHeader() {
         httpHeader = HttpHeaderParser.createHttpHeaderReader(readHeaderText());
-
-        System.out.println("input Header:\n" + httpHeader);
+        LOGGER.trace("Header read");
         return this;
     }
 
@@ -47,6 +50,7 @@ public class HttpRequestHandler extends Thread {
         do {
             try {
                 count = socketChannel.read(byteBuffer);
+
             } catch (IOException e) {
                 throw new RuntimeException("ByteBuffer read error: " + e);
             }

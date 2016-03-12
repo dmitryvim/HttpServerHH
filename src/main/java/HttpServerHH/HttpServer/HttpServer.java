@@ -48,7 +48,9 @@ public class HttpServer extends Thread{
 
     private void acceptSocketChannel(ServerSocketChannel serverSocketChannel) {
         LOGGER.trace("Waiting for connections");
-        try (final SocketChannel socketChannel = serverSocketChannel.accept()){
+        try {
+            // ToDo check safe socket channel closing
+            final SocketChannel socketChannel = serverSocketChannel.accept();
             if (socketChannel != null) {
                 LOGGER.info("Incoming connection from: {}", socketChannel.socket().getRemoteSocketAddress());
 
@@ -56,7 +58,7 @@ public class HttpServer extends Thread{
                         .createHttpRequestHandler()
                         .setSocketChannel(socketChannel)
                         .setSettings(settings)
-                        .run();
+                        .start();
             }
         } catch (IOException e) {
             LOGGER.error("Server socket accept exception", e);
