@@ -61,7 +61,8 @@ public abstract class HttpHeader {
 
     abstract protected StringBuilder getHttpHeaderFirstLine();
 
-    public String getHttpHeader() {
+    @Override
+    public String toString() {
         StringBuilder httpHeader = getHttpHeaderFirstLine();
         for (Map.Entry<String, String> entry : getParametersEntrySet()) {
             httpHeader
@@ -75,7 +76,7 @@ public abstract class HttpHeader {
     }
 
     public byte[] getBytes() {
-        return getHttpHeader().getBytes();
+        return toString().getBytes();
     }
 
 }

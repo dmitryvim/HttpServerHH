@@ -53,7 +53,7 @@ public class HttpHeaderTest {
         httpHeader.parseFirstLine("abc");
         httpHeader.addParameter("A1: B1");
         httpHeader.addParameter("A2: B2");
-        assertEquals("abc\r\nA1: B1\nA2: B2\n\n", httpHeader.getHttpHeader());
+        assertEquals("abc\r\nA1: B1\nA2: B2\n\n", httpHeader.toString());
 
     }
 }

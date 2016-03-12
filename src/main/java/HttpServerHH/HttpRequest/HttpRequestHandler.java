@@ -37,7 +37,7 @@ public class HttpRequestHandler extends Thread {
 
     private HttpRequestHandler readHeader() {
         httpHeader = HttpHeaderParser.createHttpHeaderReader(readHeaderText());
-        LOGGER.trace("Header read");
+        LOGGER.trace("Header read\n---\n{}---\n", httpHeader.toString());
         return this;
     }
 
