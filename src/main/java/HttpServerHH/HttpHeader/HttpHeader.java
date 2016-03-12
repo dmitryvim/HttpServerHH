@@ -1,9 +1,8 @@
-import javafx.beans.binding.StringBinding;
+package HttpServerHH.HttpHeader;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 /**
  * Created by mhty on 26.02.16.
@@ -23,10 +22,9 @@ public abstract class HttpHeader {
 
     protected HttpHeader() {
         parameters = new HashMap<>();
-
     }
 
-    abstract protected void parseFirstLine(String line);
+    abstract public void parseFirstLine(String line);
 
     public HttpHeader addParameter(String line) {
         String[] parsedParameter = line.split(": ", 2);

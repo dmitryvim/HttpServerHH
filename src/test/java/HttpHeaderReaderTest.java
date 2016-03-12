@@ -1,3 +1,4 @@
+import HttpServerHH.HttpHeader.HttpHeaderParser;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -22,13 +23,13 @@ public class HttpHeaderReaderTest {
     @Test
     public void testIfGetMethodTrue() {
         httpHeader = HttpHeaderParser.createHttpHeaderReader("GET /a/b/c HTTP/1.1");
-        assertEquals(true, httpHeader.ifMethodGet());
+        assertEquals(true, httpHeader.checkMethodGet());
     }
 
     @Test
     public void testIfGetMethodFalse() {
         httpHeader = HttpHeaderParser.createHttpHeaderReader("POST /GET/ HTTP/1.1");
-        assertEquals(false, httpHeader.ifMethodGet());
+        assertEquals(false, httpHeader.checkMethodGet());
     }
 
     @Test

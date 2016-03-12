@@ -1,9 +1,10 @@
+package HttpServerHH.HttpHeader;
 
-public class HttpHeaderWriter extends HttpHeader{
+public class HttpHeaderWriter extends HttpHeader {
 
     private String status = HTTP_STATUS_SUCCESS;
     private int code = HTTP_CODE_SUCCESS;
-    private String version = "HTTP/1.1";
+    private String version;
 
     private HttpHeaderWriter() {
         super();
@@ -35,7 +36,7 @@ public class HttpHeaderWriter extends HttpHeader{
 
 
     @Override
-    protected void parseFirstLine(String line) {
+    public void parseFirstLine(String line) {
         String[] parsedParameter = line.split(" ", 3);
         if (parsedParameter.length < 3) {
             throw new RuntimeException("Read first line http request exeption. \"" + line + "\"\n");

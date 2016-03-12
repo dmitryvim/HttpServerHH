@@ -1,3 +1,5 @@
+package HttpServerHH.HttpServer;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -7,7 +9,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-class ServerSettings {
+public class ServerSettings {
     static private final String SERVER_NAME_KEY = "#document/server/name/";
     static private final String SERVER_VERSION_KEY = "#document/server/version/";
     static private final String HTTP_VERSION_KEY = "#document/server/http-version/";
@@ -62,7 +64,7 @@ class ServerSettings {
         return getAttr(DIR_BAD_REQUEST_KEY);
     }
 
-    public ServerSettings serverSettingsCreate(String filename) {
+    public static ServerSettings createServerSettings(String filename) {
         return new ServerSettings(filename).init();
     }
 

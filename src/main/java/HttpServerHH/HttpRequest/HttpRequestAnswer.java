@@ -1,3 +1,10 @@
+package HttpServerHH.HttpRequest;
+
+import HttpServerHH.FileReader.FileReader;
+import HttpServerHH.HttpHeader.HttpHeader;
+import HttpServerHH.HttpHeader.HttpHeaderWriter;
+import HttpServerHH.HttpServer.ServerSettings;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -8,6 +15,14 @@ public class HttpRequestAnswer {
     private HttpHeaderWriter httpHeader;
     private int defaultBufferSize = 1024;
     private byte[] byteHtml;
+    private ServerSettings settings;
+
+    public HttpRequestAnswer setSettings(ServerSettings settings) {
+        this.settings = settings;
+
+        httpHeader.setVersion(settings.getHttpVersion());
+        return this;
+    }
 
     final String HTML_PAGE_BAD_REQUEST = "<html>\n" +
             "<head><title>400 Bad Request</title></head>\n" +
@@ -44,7 +59,7 @@ public class HttpRequestAnswer {
 
     private void setStandartHeaderParametres() {
         httpHeader.setContentLength(byteHtml.length);
-        httpHeader.addParameter("Server", "mhServer 0.0.1");
+        httpHeader.addParameter("Server", settings.getServerName() + " " + settings.getServerVersion());
         httpHeader.addParameter("Content-type:", "text/html; charset=utf-8");
         httpHeader.addParameter("Connection", "close");
     }

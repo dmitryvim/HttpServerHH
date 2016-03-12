@@ -1,3 +1,7 @@
+package HttpServerHH.HttpServer;
+
+import HttpServerHH.HttpRequest.HttpRequestHandler;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
@@ -6,57 +10,31 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class HttpServer extends Thread{
-    private int port;
-    private InetSocketAddress inetSocketAddress;
+    private ServerSettings settings;
+
     private ServerSocketChannel serverSocketChannel;
-    private String homeDirectory;
-    private String indexFilename = "index.html";
     private volatile boolean active = true;
     private ExecutorService executorService;
-    private FileCash cash;
+    private ServerFileCash cash;
 
-    public FileCash getCash() {
+    public ServerFileCash getCash() {
         return cash;
     }
 
-    public String getHomeDirectory() {
-        return homeDirectory;
-    }
-
-    public String getIndexFilename() {
-        return indexFilename;
-    }
-
-    public static HttpServer build() {
-        return new HttpServer();
+    public static HttpServer build(ServerSettings settings) {
+        HttpServer httpServer = new HttpServer();
+        httpServer.settings = settings;
+        return httpServer;
     }
 
     private HttpServer() {
         super();
-        executorService = Executors.newFixedThreadPool(4);
-        cash = new FileCash();
+        this.executorService = Executors.newFixedThreadPool(4);
+        this.cash = new ServerFileCash();
     }
 
-    public HttpServer setInetPort(int port) {
-        this.port = port;
-        inetSocketAddress = new InetSocketAddress(this.port);
-        return this;
-    }
-
-    public HttpServer setInetSocketAdress(InetSocketAddress inetSocketAddress) {
-        this.inetSocketAddress = inetSocketAddress;
-        this.port = inetSocketAddress.getPort();
-        return this;
-    }
-
-    public HttpServer setHomeDirectory(String homeDirectory) {
-        this.homeDirectory = homeDirectory;
-        return this;
-    }
-
-    public HttpServer setIndexFilename(String indexFilename) {
-        this.indexFilename = indexFilename;
-        return this;
+    public ServerSettings getSettings() {
+        return settings;
     }
 
     @Override
@@ -69,26 +47,41 @@ public class HttpServer extends Thread{
                 if (socketChannel != null) {
                     System.out.println("Incoming connection from: " + socketChannel.socket().getRemoteSocketAddress());
 //                    executorService.submit((Runnable) () -> {
-//                        HttpRequestHandler requestHandler = HttpRequestHandler.createHttpRequestHandler().setSocketChannel(socketChannel).setHttpServer(this);
+//                        HttpServerHH.HttpRequest.HttpRequestHandler requestHandler = HttpServerHH.HttpRequest.HttpRequestHandler.createHttpRequestHandler().setSocketChannel(socketChannel).setHttpServer(this);
 //                        requestHandler.run();
 //                    });
-                    HttpRequestHandler requestHandler = HttpRequestHandler.createHttpRequestHandler().setSocketChannel(socketChannel).setHttpServer(this);
-                    requestHandler.run();
+
+                    HttpRequestHandler
+                            .createHttpRequestHandler()
+                            .setSocketChannel(socketChannel)
+                            .setSettings(settings)
+                            .setFileCash(cash)
+                            .run();
+
+//                    HttpRequestHandler requestHandler = HttpRequestHandler
+//                            .createHttpRequestHandler()
+//                            .setSocketChannel(socketChannel)
+//                            .setHttpServer(this);
+//                    requestHandler.run();
 
                 }
             } catch (IOException e) {
                 throw new RuntimeException("Server socket accept exception:" + e);
             }
-
         }
     }
 
     private void init() {
         try {
-            active = true;
+            InetSocketAddress inetSocketAddress = new InetSocketAddress(settings.getPort());
+
             serverSocketChannel = ServerSocketChannel.open();
             serverSocketChannel.socket().bind(inetSocketAddress);
             serverSocketChannel.configureBlocking(true);
+
+            cash.setTimeout(settings.getCashTimeout());
+
+            active = true;
         } catch (IOException e) {
             throw new RuntimeException("Start server error:" + e);
         }

@@ -1,3 +1,5 @@
+package HttpServerHH.HttpServer;
+
 import javafx.util.Pair;
 
 import java.sql.Time;
@@ -8,11 +10,11 @@ import java.util.Map;
 /**
  * Created by dmitry on 3/4/16.
  */
-public class FileCash {
+public class ServerFileCash {
     private Map<String, Pair<Long, byte[]>> cashedPages;
     private int timeout = 1000 * 60;
 
-    public FileCash() {
+    public ServerFileCash() {
         this.cashedPages = new HashMap<>();
     }
 

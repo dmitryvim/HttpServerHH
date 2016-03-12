@@ -1,12 +1,18 @@
+package HttpServerHH.HttpRequest;
+
+import HttpServerHH.HttpHeader.HttpHeaderParser;
+import HttpServerHH.HttpServer.ServerSettings;
+import HttpServerHH.HttpServer.ServerFileCash;
+
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-public class HttpRequestHandler implements Runnable {
+public class HttpRequestHandler extends Thread {
     private SocketChannel socketChannel;
-    public HttpHeaderParser httpHeader;
-    private HttpServer httpServer;
+    private HttpHeaderParser httpHeader;
+    private ServerSettings settings;
+    private ServerFileCash fileCash;
 
     private HttpRequestHandler() {
         super();
@@ -21,12 +27,24 @@ public class HttpRequestHandler implements Runnable {
         return this;
     }
 
-    public HttpRequestHandler setHttpServer(HttpServer httpServer) {
-        this.httpServer = httpServer;
+    public HttpRequestHandler setSettings(ServerSettings settings) {
+        this.settings = settings;
+        return this;
+    }
+
+    public HttpRequestHandler setFileCash(ServerFileCash fileCash) {
+        this.fileCash = fileCash;
         return this;
     }
 
     private HttpRequestHandler readHeader() {
+        httpHeader = HttpHeaderParser.createHttpHeaderReader(readHeaderText());
+
+        System.out.println("input Header:\n" + httpHeader);
+        return this;
+    }
+
+    private String readHeaderText() {
         final int bufferSize = 200;
         int count;
         StringBuilder requestHeaderText = new StringBuilder();
@@ -49,31 +67,30 @@ public class HttpRequestHandler implements Runnable {
                 byteBuffer.rewind();
             }
         } while (count == bufferSize);
-
-        httpHeader = HttpHeaderParser.createHttpHeaderReader(requestHeaderText.toString());
-
-        System.out.println("input Header:\n" + httpHeader);
-        return this;
+        return requestHeaderText.toString();
     }
 
     private void writeAnswer() {
-        HttpRequestAnswer answer = HttpRequestAnswer.createHttpRequestAnswer(socketChannel);
-        if (httpServer.getCash().checkPage(getPath())) {
+        HttpRequestAnswer answer = HttpRequestAnswer
+                .createHttpRequestAnswer(socketChannel)
+                .setSettings(settings);
+
+        if (fileCash.checkPage(getPath())) {
             System.out.println("use cash " + getPath() + "\n");
             answer
-                    .setPageBytes(httpServer.getCash().getPage(getPath()))
+                    .setPageBytes(fileCash.getPage(getPath()))
                     .make();
         } else {
             System.out.println("use file " + getPath() + "\n");
 
             answer.setPath(getPath());
-            httpServer.getCash().addPage(getPath(), answer.getPageBytes());
+            fileCash.addPage(getPath(), answer.getPageBytes());
             answer.make();
         }
     }
 
     private String getPath() {
-        String path = httpServer.getHomeDirectory() + httpHeader.getPath();
+        String path = settings.getHomeDirectory() + httpHeader.getPath();
         if (isDirectory(path)) {
             path = addIndex(path);
         }
@@ -90,6 +107,7 @@ public class HttpRequestHandler implements Runnable {
             HttpRequestAnswer
                     .createHttpRequestAnswer(socketChannel)
                     .setBadAnswer()
+                    .setSettings(settings)
                     .make();
         }
     }
@@ -101,6 +119,8 @@ public class HttpRequestHandler implements Runnable {
     }
 
     public String addIndex(String uri) {
-        return uri + httpServer.getIndexFilename();
+        return uri + settings.getIndexFile();
     }
+
+
 }

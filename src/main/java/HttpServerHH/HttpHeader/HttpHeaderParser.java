@@ -1,3 +1,4 @@
+package HttpServerHH.HttpHeader;
 
 public class HttpHeaderParser extends HttpHeader {
     final static String METHOD_GET_STRING = "GET";
@@ -17,7 +18,7 @@ public class HttpHeaderParser extends HttpHeader {
         parseString(headerString);
     }
 
-    public boolean ifMethodGet() {
+    public boolean checkMethodGet() {
         return method.equals(METHOD_GET_STRING);
     }
 
@@ -30,7 +31,7 @@ public class HttpHeaderParser extends HttpHeader {
     }
 
     @Override
-    protected void parseFirstLine(String line)  {
+    public void parseFirstLine(String line)  {
         String[] parsedParameter = line.split(" ", 3);
         if (parsedParameter.length < 3) {
             throw new RuntimeException("Read first line http request exeption. \"" + line + "\"\n");
@@ -41,7 +42,7 @@ public class HttpHeaderParser extends HttpHeader {
     }
 
     @Override
-    protected StringBuilder getHttpHeaderFirstLine() {
+    public StringBuilder getHttpHeaderFirstLine() {
         StringBuilder httpHeader = new StringBuilder();
         httpHeader
                 .append(method)
