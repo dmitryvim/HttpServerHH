@@ -22,6 +22,7 @@ public class ServerSettings {
     static private final String CASH_TIMEOUT_KEY = "#document/server/file-cash-timeout/";
     static private final String DIR_NOT_FOUND_KEY = "#document/server/system-page-path/not-found/";
     static private final String DIR_BAD_REQUEST_KEY = "#document/server/system-page-path/bad-request/";
+    static private final String DIR_NOT_ALLOWED_KEY = "#document/server/system-page-path/not-allowed/";
 
     private Map<String, String> attributes;
     private Document document;
@@ -65,6 +66,10 @@ public class ServerSettings {
 
     public String getPathBadRequest() {
         return getAttr(DIR_BAD_REQUEST_KEY);
+    }
+
+    public String getPathNotAllowed() {
+        return getAttr(DIR_NOT_ALLOWED_KEY);
     }
 
     public static ServerSettings createServerSettings(String filename) throws IOException, SAXException, ParserConfigurationException {

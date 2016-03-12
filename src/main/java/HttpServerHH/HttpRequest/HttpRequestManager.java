@@ -38,6 +38,7 @@ public class HttpRequestManager extends Thread {
         try {
             readHeader();
             writeAnswer();
+
         } catch (RuntimeException e) {
             LOGGER.error("request exception", e);
             sendBadRequest();
@@ -51,11 +52,32 @@ public class HttpRequestManager extends Thread {
         }
     }
 
+    private void sendNotAllowed() {
+        try {
+            HttpRequestAnswer
+                    .createHttpRequestAnswer(socketChannel)
+                    .setSettings(settings)
+                    .setNotAllowed()
+                    .make();
+        } catch (RuntimeException e) {
+            LOGGER.error("Cannot send not allowed", e);
+        }
+    }
+
+
     private void readHeader() {
         httpHeader = HttpRequestReader.readHttpHeader(socketChannel);
     }
 
     private void writeAnswer() {
+        if (!httpHeader.checkMethodGet()) {
+            sendNotAllowed();
+        } else {
+            sendSuccess();
+        }
+    }
+
+    private void sendSuccess() {
         HttpRequestAnswer
                 .createHttpRequestAnswer(socketChannel)
                 .setSettings(settings)

@@ -23,6 +23,7 @@ public class HttpRequestReader {
     }
 
     private void readHeader() {
+        LOGGER.trace("Try to read header: {}", socketChannel.socket().getRemoteSocketAddress());
         httpHeader = HttpHeaderParser.createHttpHeaderReader(readHeaderText());
         LOGGER.trace("Header read\n---\n{}---\n", httpHeader.toString());
     }

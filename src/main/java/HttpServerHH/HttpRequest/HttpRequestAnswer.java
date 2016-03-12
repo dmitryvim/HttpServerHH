@@ -53,6 +53,12 @@ public class HttpRequestAnswer {
         return this;
     }
 
+    public HttpRequestAnswer setNotAllowed() {
+        setPath(settings.getPathNotAllowed());
+        httpHeader.setNotAllowed();
+        return this;
+    }
+
     public HttpRequestAnswer setNotModified() {
         httpHeader.setNotModified();
         return this;
@@ -65,9 +71,8 @@ public class HttpRequestAnswer {
         try {
             socketChannel.write(ByteBuffer.wrap(httpHeader.getBytes()));
             socketChannel.write(ByteBuffer.wrap(byteHtml));
-            socketChannel.close();
         } catch (IOException e) {
-            throw new RuntimeException("Socket channel write exception.\n" + e);
+            LOGGER.error("Socket channel write exception.", e);
         }
     }
 
@@ -88,15 +93,7 @@ public class HttpRequestAnswer {
         return format.format(Calendar.getInstance().getTimeInMillis());
     }
 
-    static int ccc = 0;
-
     private void setHtmlBytes() {
-//        ccc++;
-//        if (ccc > 1) {
-//            setNotModified();
-//            LOGGER.trace("Not modified");
-//        }
-
         byteHtml = fileReader.read();
         if (fileReader.notFound()) {
             httpHeader.setNotFound();
