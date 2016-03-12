@@ -8,10 +8,13 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class HttpServer extends Thread{
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpServer.class);
 
+    ExecutorService service;
     private ServerSettings settings;
     private volatile boolean active = true;
 
@@ -23,6 +26,7 @@ public class HttpServer extends Thread{
 
     private HttpServer() {
         super();
+        service = Executors.newFixedThreadPool(4);
     }
 
     @Override
@@ -36,6 +40,8 @@ public class HttpServer extends Thread{
         } catch (IOException e) {
             LOGGER.error("Cannot start server socket channel", e);
             throw new RuntimeException("Cannot start server socket channel");
+        } finally {
+            service.shutdown();
         }
 
     }
@@ -54,11 +60,11 @@ public class HttpServer extends Thread{
             if (socketChannel != null) {
                 LOGGER.info("Incoming connection from: {}", socketChannel.socket().getRemoteSocketAddress());
 
-                HttpRequestHandler
+                service.submit(HttpRequestHandler
                         .createHttpRequestHandler()
                         .setSocketChannel(socketChannel)
-                        .setSettings(settings)
-                        .start();
+                        .setSettings(settings));
+
             }
         } catch (IOException e) {
             LOGGER.error("Server socket accept exception", e);
