@@ -7,7 +7,7 @@ HTTP/1.1 200 OK
 Server: Apache/2.2.22 (Ubuntu)
 Last-Modified: Wed, 19 Feb 2014 23:09:14 GMT
 ETag: "35dffb3-2ba-4f2ca7a397a4a"
-Content-Type: text/html; charset=UTF-8
+Content-Type: text/html; charsetName=UTF-8
 Content-Length: 698
 Accept-Ranges: bytes
 Date: Sat, 12 Mar 2016 19:09:05 GMT
@@ -22,5 +22,5 @@ echo -en "GET / HTTP/1.1\r\nHost: localhost\n\r\n" | nc localhost 1234
 HTTP/1.1 200 OK
 Server: mhServer 0.0.1
 Connection: close
-Content-type:: text/html; charset=utf-8
+Content-type:: text/html; charsetName=utf-8
 Content-length: 209

@@ -21,7 +21,7 @@ public class HttpRequestAnswer {
     private SocketChannel socketChannel;
     private FileReader fileReader;
     private HttpHeaderWriter httpHeader;
-    private byte[] byteHtml;
+    private ByteBuffer byteHtml;
     private ServerSettings settings;
 
     public static HttpRequestAnswer createHttpRequestAnswer(SocketChannel socketChannel) {
@@ -70,7 +70,7 @@ public class HttpRequestAnswer {
 
         try {
             socketChannel.write(ByteBuffer.wrap(httpHeader.getBytes()));
-            socketChannel.write(ByteBuffer.wrap(byteHtml));
+            socketChannel.write(byteHtml);
         } catch (IOException e) {
             LOGGER.error("Socket channel write exception.", e);
         }
@@ -78,7 +78,7 @@ public class HttpRequestAnswer {
 
     private void setHeader() {
         httpHeader.setHttpVersion(settings.getHttpVersion());
-        httpHeader.setContentLength(byteHtml.length);
+        httpHeader.setContentLength(byteHtml.remaining());
         httpHeader.addParameter("Server", settings.getServerName() + " " + settings.getServerVersion());
         httpHeader.addParameter("Content-type", fileReader.getContentType());
         httpHeader.addParameter("Connection", "close");

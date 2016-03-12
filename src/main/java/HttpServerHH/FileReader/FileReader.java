@@ -3,12 +3,11 @@ package HttpServerHH.FileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.util.Calendar;
@@ -33,10 +32,11 @@ public class FileReader {
         return new FileReader(filename);
     }
 
-    public byte[] read(){
+    public ByteBuffer read(){
         pathCheck();
         try {
-            return Files.readAllBytes(path);
+            ByteBuffer byteBuffer = ByteBuffer.wrap(Files.readAllBytes(path));
+            return byteBuffer;
         } catch (IOException e) {
             throw new RuntimeException("Cannot read file " + path);
         }
