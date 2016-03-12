@@ -8,7 +8,7 @@
     <port>1234</port>
     <file-cash-timeout>60000</file-cash-timeout>
     <system-page-path>
-        <not-found>/Users/mhty/IdeaProjects/HttpServerHH.HttpServer/server-settings/p404.html</not-found>
-        <bad-request>/Users/mhty/IdeaProjects/HttpServerHH.HttpServer/server-settings/p400.html</bad-request>
+        <not-found>/Users/mhty/IdeaProjects/HttpServer/server-settings/p404.html</not-found>
+        <bad-request>/Users/mhty/IdeaProjects/HttpServer/server-settings/p405.html</bad-request>
     </system-page-path>
 </server>

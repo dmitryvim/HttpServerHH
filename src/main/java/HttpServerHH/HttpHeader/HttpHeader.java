@@ -8,16 +8,6 @@ import java.util.Set;
  * Created by mhty on 26.02.16.
  */
 public abstract class HttpHeader {
-    final static public int HTTP_CODE_SUCCESS = 200;
-    final static public int HTTP_CODE_BAD_REQUEST = 400;
-    final static public int HTTP_CODE_NOT_FOUND = 404;
-    final static public int HTTP_CODE_METHOD_NOT_ALLOWED = 405;
-
-    final static public String HTTP_STATUS_SUCCESS = "OK";
-    final static public String HTTP_STATUS_NOT_FOUND = "Not Found";
-    final static public String HTTP_STATUS_BAD_REQUEST = "Bad Request";
-    final static public String HTTP_STATUS_METHOD_NOT_ALLOWED = "Not Allowed";
-
     private HashMap<String, String> parameters;
 
     protected HttpHeader() {

@@ -1,6 +1,15 @@
 package HttpServerHH.HttpHeader;
 
 public class HttpHeaderWriter extends HttpHeader {
+    final static private int HTTP_CODE_SUCCESS = 200;
+    final static private int HTTP_CODE_BAD_REQUEST = 400;
+    final static private int HTTP_CODE_NOT_FOUND = 404;
+    final static private int HTTP_CODE_METHOD_NOT_ALLOWED = 405;
+
+    final static private String HTTP_STATUS_SUCCESS = "OK";
+    final static private String HTTP_STATUS_NOT_FOUND = "Not Found";
+    final static private String HTTP_STATUS_BAD_REQUEST = "Bad Request";
+    final static private String HTTP_STATUS_METHOD_NOT_ALLOWED = "Not Allowed";
 
     private String status = HTTP_STATUS_SUCCESS;
     private int code = HTTP_CODE_SUCCESS;
@@ -10,8 +19,28 @@ public class HttpHeaderWriter extends HttpHeader {
         super();
     }
 
-    public static HttpHeaderWriter createHttpHeaderWriter(int code) {
+    public static HttpHeaderWriter createHttpHeaderWriter() {
         return new HttpHeaderWriter();
+    }
+
+    public void setSuccess() {
+        setStatus(HTTP_STATUS_SUCCESS);
+        setCode(HTTP_CODE_SUCCESS);
+    }
+
+    public void setNotFound() {
+        setStatus(HTTP_STATUS_NOT_FOUND);
+        setCode(HTTP_CODE_NOT_FOUND);
+    }
+
+    public void setBadRequest() {
+        setStatus(HTTP_STATUS_BAD_REQUEST);
+        setCode(HTTP_CODE_BAD_REQUEST);
+    }
+
+    public void setNotAllowed() {
+        setStatus(HTTP_STATUS_METHOD_NOT_ALLOWED);
+        setCode(HTTP_CODE_METHOD_NOT_ALLOWED);
     }
 
     public HttpHeaderWriter setStatus(String status) {
@@ -24,7 +53,7 @@ public class HttpHeaderWriter extends HttpHeader {
         return this;
     }
 
-    public HttpHeaderWriter setVersion(String version) {
+    public HttpHeaderWriter setHttpVersion(String version) {
         this.version = version;
         return this;
     }
