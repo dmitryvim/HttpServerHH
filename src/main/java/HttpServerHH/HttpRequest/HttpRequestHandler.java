@@ -12,7 +12,6 @@ public class HttpRequestHandler extends Thread {
     private SocketChannel socketChannel;
     private HttpHeaderParser httpHeader;
     private ServerSettings settings;
-    private ServerFileCash fileCash;
 
     private HttpRequestHandler() {
         super();
@@ -29,11 +28,6 @@ public class HttpRequestHandler extends Thread {
 
     public HttpRequestHandler setSettings(ServerSettings settings) {
         this.settings = settings;
-        return this;
-    }
-
-    public HttpRequestHandler setFileCash(ServerFileCash fileCash) {
-        this.fileCash = fileCash;
         return this;
     }
 
@@ -75,18 +69,8 @@ public class HttpRequestHandler extends Thread {
                 .createHttpRequestAnswer(socketChannel)
                 .setSettings(settings);
 
-        if (fileCash.checkPage(getPath())) {
-            System.out.println("use cash " + getPath() + "\n");
-            answer
-                    .setPageBytes(fileCash.getPage(getPath()))
-                    .make();
-        } else {
-            System.out.println("use file " + getPath() + "\n");
-
-            answer.setPath(getPath());
-            fileCash.addPage(getPath(), answer.getPageBytes());
-            answer.make();
-        }
+        answer.setPath(getPath());
+        answer.make();
     }
 
     private String getPath() {
