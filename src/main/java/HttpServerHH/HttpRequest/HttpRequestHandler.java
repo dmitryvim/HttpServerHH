@@ -106,12 +106,11 @@ public class HttpRequestHandler extends Thread {
         } catch (RuntimeException e) {
             HttpRequestAnswer
                     .createHttpRequestAnswer(socketChannel)
-                    .setBadAnswer()
                     .setSettings(settings)
+                    .setBadAnswer()
                     .make();
         }
     }
-
 
 
     public boolean isDirectory(String uri) {

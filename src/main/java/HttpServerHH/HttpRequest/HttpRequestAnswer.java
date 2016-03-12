@@ -96,7 +96,7 @@ public class HttpRequestAnswer {
             socketChannel.write(ByteBuffer.wrap(byteHtml));
             socketChannel.close();
         } catch (IOException e) {
-            throw new RuntimeException("Socket channel write exception.\n" + fileReader.getPath() + "\n" + e);
+            throw new RuntimeException("Socket channel write exception.\n" + e);
         }
     }
 
