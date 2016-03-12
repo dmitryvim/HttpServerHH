@@ -60,10 +60,10 @@ public class HttpServer extends Thread{
             if (socketChannel != null) {
                 LOGGER.info("Incoming connection from: {}", socketChannel.socket().getRemoteSocketAddress());
 
-                service.submit((Runnable) () -> HttpRequestHandler
+                service.submit(HttpRequestHandler
                         .createHttpRequestHandler()
                         .setSocketChannel(socketChannel)
-                        .setSettings(settings).run());
+                        .setSettings(settings));
 
             }
         } catch (IOException e) {
