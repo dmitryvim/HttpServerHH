@@ -85,6 +85,8 @@ public class HttpRequestAnswer {
         fileReader = FileReader.createFileReader(settings.getHomeDirectory() + path);
         fileReader.setDefaultPath(settings.getPathNotFound());
         fileReader.setIndexFile(settings.getIndexFile());
+        fileReader.setCashTime(settings.getCashTimeout());
+        fileReader.pathCheck();
     }
 
 
@@ -94,7 +96,7 @@ public class HttpRequestAnswer {
         httpHeader.addParameter("Server", settings.getServerName() + " " + settings.getServerVersion());
         httpHeader.addParameter("Content-type", fileReader.getContentType());
         httpHeader.addParameter("Connection", "close");
-        httpHeader.addParameter("Cache-Control", "max-age=3600");
+        httpHeader.addParameter("Cache-Control", "max-age=" + settings.getCashTimeout());
         httpHeader.addParameter("Last-Modified", fileReader.getLastModified());
         httpHeader.addParameter("Date", getNowString());
         httpHeader.addParameter("Etag", fileReader.getEtag());

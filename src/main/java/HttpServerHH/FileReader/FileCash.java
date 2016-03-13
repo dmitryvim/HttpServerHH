@@ -31,7 +31,6 @@ public class FileCash {
 
     private void checkTime(String uri) {
         if (checkExistence(uri)) {
-            long time = getNow();
             if (getNow() - cashedPages.get(uri).getKey() > timeout) {
                 cashedPages.remove(uri);
             }

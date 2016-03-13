@@ -76,7 +76,7 @@ public class FileReader {
         return charset.encode(charBuffer);
     }
 
-    private void pathCheck() {
+    public void pathCheck() {
         if (Files.notExists(path)) {
             LOGGER.warn("Path {}  doesn't exists, read from default path {}", path.toString(), defaultPath.toString());
             path = defaultPath;
@@ -115,7 +115,6 @@ public class FileReader {
     }
 
     private long getLastModifiedInMs() {
-        pathCheck();
         long time;
         try {
             time = Files.getLastModifiedTime(path).toMillis();
@@ -123,12 +122,10 @@ public class FileReader {
             LOGGER.error("Cannot get last modified time", e);
             time = Calendar.getInstance().getTimeInMillis();
         }
-        time = time - 60 * 1000;
         return time;
     }
 
     public String getContentType() {
-        pathCheck();
         String pathString = path.toString();
         String extension = pathString.substring(pathString.lastIndexOf('.') + 1);
 
@@ -142,7 +139,10 @@ public class FileReader {
     }
 
     public String getEtag() {
-        pathCheck();
         return DigestUtils.md5Hex(path.toString() +  getLastModifiedInMs());
+    }
+
+    public void setCashTime(int cashTime) {
+        cash.setTimeout(cashTime);
     }
 }
