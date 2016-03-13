@@ -97,6 +97,9 @@ public class HttpRequestAnswer {
         httpHeader.addParameter("Cache-Control", "max-age=3600");
         httpHeader.addParameter("Last-Modified", fileReader.getLastModified());
         httpHeader.addParameter("Date", getNowString());
+        httpHeader.addParameter("Etag", fileReader.getEtag());
+
+        LOGGER.trace("header configured\n---\n{}---", httpHeader.toString());
     }
 
     private String getNowString() {
@@ -106,10 +109,26 @@ public class HttpRequestAnswer {
     }
 
     private void setHtmlBytes() {
-        byteHtml = fileReader.read();
-        if (fileReader.notFound()) {
-            httpHeader.setNotFound();
+        if (checkEtag()) {
+            setNotModified();
+            LOGGER.debug("Use browser cash ", fileReader.getEtag());
+            byteHtml = ByteBuffer.allocate(0);
+        } else {
+            byteHtml = fileReader.read();
+            LOGGER.debug("Try to read file ", fileReader.getEtag());
+            if (fileReader.notFound()) {
+                httpHeader.setNotFound();
+                LOGGER.debug("File not found ", fileReader.getEtag());
+            }
         }
+    }
+
+    private boolean checkEtag() {
+        final String ETAG_PARAMETER = "If-None-Match";
+        LOGGER.trace("Check etag coincidence: [hasParameter: {}; requestEtag: {}; serverEtag: {}]",
+                requestHeader.hasParameter(ETAG_PARAMETER), requestHeader.getParameter(ETAG_PARAMETER), fileReader.getEtag());
+        return requestHeader.hasParameter(ETAG_PARAMETER) &&
+                requestHeader.getParameter(ETAG_PARAMETER).equals(fileReader.getEtag());
     }
 
     public HttpRequestAnswer setRequestHeader(HttpHeaderParser requestHeader) {

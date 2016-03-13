@@ -1,5 +1,6 @@
 package HttpServerHH.FileReader;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,6 +105,16 @@ public class FileReader {
     }
 
     public String getLastModified() {
+        long time = getLastModifiedInMs();
+        final SimpleDateFormat format = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);
+        format.setTimeZone(TimeZone.getTimeZone(ZoneId.of("GMT")));
+
+        String result = format.format(time);
+        LOGGER.trace("Server time, last modified \n\tpath: {} \n\ttime: {}", path.toString(), result);
+        return result;
+    }
+
+    private long getLastModifiedInMs() {
         pathCheck();
         long time;
         try {
@@ -113,12 +124,7 @@ public class FileReader {
             time = Calendar.getInstance().getTimeInMillis();
         }
         time = time - 60 * 1000;
-        final SimpleDateFormat format = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);
-        format.setTimeZone(TimeZone.getTimeZone(ZoneId.of("GMT")));
-
-        String result = format.format(time);
-        LOGGER.trace("Server time, last modified \n\tpath: {} \n\ttime: {}", path.toString(), result);
-        return result;
+        return time;
     }
 
     public String getContentType() {
@@ -133,5 +139,10 @@ public class FileReader {
             return "application/javascript";
         }
         return "text/html; charset=" + charsetName;
+    }
+
+    public String getEtag() {
+        pathCheck();
+        return DigestUtils.md5Hex(path.toString() +  getLastModifiedInMs());
     }
 }
