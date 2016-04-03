@@ -1,0 +1,30 @@
+group 'HttpServerHH'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile 'org.slf4j:slf4j-simple:1.7.20'
+    compile 'org.slf4j:slf4j-api:1.7.20'
+    compile 'sax:sax:2.0.1'
+    compile 'org.w3c:dom:2.3.0-jaxb-1.0.6'
+    compile 'commons-codec:commons-codec:1.2'
+}
+
+jar {
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes 'Main-Class': 'HttpServerHH.Application.Main'
+    }
+}
